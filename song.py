@@ -3,64 +3,69 @@ import mutagen.mp3
 from mutagen.mp3 import MP3
 from mutagen.easyid3 import EasyID3
 
-class song():
-    
-    # tagExtensions = ('mp3', 'm4a', 'acc', 'wma')
-    
-    tagExtensions = ('mp3')
+class song(object):
 
-    def __init__(self):
-        
-        self.artist = "unknown"
-        self.album = "unknown"
-        self.songTitle = "unknown"
-        self.bitrate = 0
-        self.length = 0
-        self.trackNumber = 0
+    def __init__(self, tags):
+
+        self.__artist = tags["artist"] if "artist" in tags else u'unknown'
+        self.__title = tags["title"] if "title" in tags else u'unknown'
+        self.__album = tags["album"] if "album" in tags else u'unknown'
+        self.__bitrate = tags["bitrate"] if "bitrate" in tags else u'0'
+        self.__length = tags["length"] if "length" in tags else u'0'
 
         
-    # def songObjFromFilename(songPath):
-        # IMPLEMENT
+    @property
+    def artist(self):
+        return self.__artist
 
-    def songObjFromPlaylist(self, line):
-        # tagList.append([x.rstrip() for x in line.split('\t')])
+    @property
+    def title(self):
+        return self.__title
 
-        self.artist = line["artist"]
-        self.title = line["title"]
-        self.album = line["album"]
-        self.bitrate = line["bitrate"]
-        self.length = line["length"]
+    @property
+    def album(self):
+        return self.__album
 
+    @property
+    def bitrate(self):
+        return self.__bitrate
 
+    @property
+    def length(self):
+        return self.__length
 
-    def songObjFromTags(self, songPath):
+    @classmethod
+    def songObjFromFile(cls, songPath):
+        tags = {}
        
         try:
             s = MP3(songPath, ID3=EasyID3)
 
-            self.artist = s['artist'][0] if 'artist' in s else u''    
-            self.album = s['album'][0] if 'album' in s else u''
-            self.title = s['title'][0] if 'title' in s else u''
-            self.bitrate = unicode(s.info.bitrate / 1000)
-            self.length = unicode(int(s.info.length))
+            tags["artist"] = s['artist'][0] if 'artist' in s else u''    
+            tags["album"] = s['album'][0] if 'album' in s else u''
+            tags["title"] = s['title'][0] if 'title' in s else u''
+            tags["bitrate"] = unicode(
+                    s.info.bitrate / 1000) if s.info.bitrate > 0 else u'0'
+            tags["length"] = unicode(
+                    int(s.info.length)) if s.info.length > 0 else u'0'
 
+            songObj = cls(tags)
+            return songObj
 
-
-            # return s
-        
         #except Exception, exc:
         except(mutagen.mp3.error) as exc:
             print "Error! ", exc
             raise
 
-
-    
      
+    @staticmethod
+    def isSupportedFileType(file):
+        # tagExtensions = ('mp3', 'm4a', 'acc', 'wma')
+        tagExtensions = ('mp3')
 
-    def isSupportedFileType(self, file):
         isSupported = False
         #Get file extension
-        if (os.path.splitext(file)[1][1:].strip().lower() in self.tagExtensions):
+        if (os.path.splitext(file)[1][1:].strip().lower() in tagExtensions):
            isSupported = True
         
         return isSupported
@@ -73,6 +78,7 @@ class song():
     def __eq__(self, other):
         if type(other) is type(self):
             return self.__dict__ == other.__dict__
+
         return False
 
 

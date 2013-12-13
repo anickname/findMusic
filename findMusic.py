@@ -36,23 +36,22 @@ def findMusic(rootdir, playlistSongs):
     
     for dirPath, subFolders, files in os.walk(rootdir):
         for file in files:
-            s = song()
             filePath = os.path.abspath(os.path.join(dirPath, file))
             try:
-                if s.isSupportedFileType(filePath):
-                    s.songObjFromTags(filePath)
-                    songObj = s
+                if song.isSupportedFileType(filePath):
+                    songObj = song.songObjFromFile(filePath)
                     # Add to global list of songs (if advanced search option set?)
                     if testMatch(songObj, playlistSongs):
-                        # print songObj.artist + " - " + songObj.title
+                        #print songObj.artist + " - " + songObj.title
                         found[songObj] = filePath
-
 
             except(mutagen.mp3.error) as exc:
                 #Implement error logging with exc
                 print "Error! ", exc
                 continue
 
+
+    #print found.values()
     return found
 
 
@@ -75,9 +74,8 @@ def importPlaylist(file):
     # Parse CSV file
     playList = readFile(file)
     for line in playList:
-        s = song()
-        s.songObjFromPlaylist(line)
-        songList.append(s)
+        songObj = song(line)
+        songList.append(songObj)
 
     return songList
 
