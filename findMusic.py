@@ -16,7 +16,7 @@ import mutagen.mp3
 
 def main():
     #program variables
-    playlistFile = "/home/nick/tmp/music/playlist.csv"
+    playlistFile = "/home/nick/tmp/music/playlist.txt"
     rootdir = "/home/nick/tmp/music"
     copyDestination = "/home/nick/tmp/music_found/"
     log_foundSongs = copyDestination + "songs_found.txt"
@@ -98,7 +98,7 @@ def readFile(file):
     with codecs.open(file, 'rb', encoding='utf-8') as f:
         for line in f:
             tagsDict = {}
-            tags = [x.rstrip() for x in line.split(',')]
+            tags = [x.rstrip() for x in line.split('\t')]
 
             if keys == []:
                 keys = tags
