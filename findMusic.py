@@ -19,6 +19,8 @@ def main():
     playlistFile = "/home/nick/tmp/music/playlist.csv"
     rootdir = "/home/nick/tmp/music"
     copyDestination = "/home/nick/tmp/music_found/"
+    log_foundSongs = copyDestination + "songs_found.txt"
+    log_songsNotFound = copyDestination + "songs_notfound.txt"
 
 
     playlistSongs = importPlaylist(playlistFile)
@@ -27,7 +29,16 @@ def main():
 
     copyFiles(files, copyDestination)
 
+    #Found songs
+    writeFile(foundSongs.keys(), log_foundSongs)
 
+    #Not found
+    notFound = list(set(playlistSongs) - set(foundSongs.keys()))
+    if (len(notFound) > 0):
+        writeFile(notFound, log_songsNotFound)
+
+
+    
 
 
 
@@ -98,6 +109,28 @@ def readFile(file):
                 songs.append(tagsDict)
 
     return songs
+
+def writeFile(data, file):
+    with codecs.open(file, 'wb', encoding='utf-8') as f:
+        output = ("artist", "title", "album", "bitrate", "length")
+
+        f.write(outputFormatter(output))
+
+        for s in data:
+            output = (s.artist, s.title, s.album, s.bitrate, s.length)
+            f.write(outputFormatter(output))
+
+
+def outputFormatter(output):
+    line = ""
+    for item in output:
+        if item != output[-1]:
+            line = line + item + "\t"
+        else:
+            line = line + item + "\n"
+    return line
+
+
 
 
 #Copy file to directory

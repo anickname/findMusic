@@ -81,4 +81,23 @@ class song(object):
 
         return False
 
+    def __repr__(self):
+        return "%s({%s, %s, %s, %s, %s})" % (
+                self.__class__,
+                self.artist.encode('utf-8'),
+                self.title.encode('utf-8'),
+                self.album.encode('utf-8'),
+                self.bitrate.encode('utf-8'),
+                self.length.encode('utf-8')
+                )
 
+
+    def __str__(self):
+        return "%s\t%s\t%s\t%s\t%s" % (
+                self.__class__,
+                self.artist.encode('utf-8'),
+                self.title.encode('utf-8'),
+                self.album.encode('utf-8'),
+                self.bitrate.encode('utf-8'),
+                self.length.encode('utf-8')
+                )
