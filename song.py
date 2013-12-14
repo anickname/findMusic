@@ -1,3 +1,8 @@
+'''
+Song class to model MP3 files
+'''
+
+
 import os
 import mutagen.mp3
 from mutagen.mp3 import MP3

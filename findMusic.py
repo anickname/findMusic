@@ -1,3 +1,9 @@
+'''
+Find music files given a playlist
+Author: SB
+'''
+
+
 import os
 import errno
 import sys
