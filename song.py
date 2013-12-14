@@ -94,7 +94,6 @@ class song(object):
 
     def __str__(self):
         return "%s\t%s\t%s\t%s\t%s" % (
-                self.__class__,
                 self.artist.encode('utf-8'),
                 self.title.encode('utf-8'),
                 self.album.encode('utf-8'),

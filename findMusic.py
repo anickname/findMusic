@@ -11,37 +11,46 @@ import mutagen.mp3
 
 
 
-# import difflib
-# difflib.get_close_matches(word, possibilities[, n][, cutoff])
 
 def main():
     #program variables
     playlistFile = "/home/nick/tmp/music/playlist.txt"
-    rootdir = "/home/nick/tmp/music"
+    rootdir = "/home/nick/tmp/music/"
     copyDestination = "/home/nick/tmp/music_found/"
     log_foundSongs = copyDestination + "songs_found.txt"
     log_songsNotFound = copyDestination + "songs_notfound.txt"
 
-
+    #Import playlist
+    print "Importing playlist..."
     playlistSongs = importPlaylist(playlistFile)
+
+    #Find matches
+    print "Finding matches..."
     foundSongs = findMusic(rootdir, playlistSongs)
     files = foundSongs.values()
 
-    copyFiles(files, copyDestination)
+    #Copy files if matches found
+    if files != []:
 
-    #Found songs
-    writeFile(foundSongs.keys(), log_foundSongs)
+        #Copy files
+        print "Copying files..."
+        copyFiles(files, copyDestination)
 
-    #Not found
-    notFound = list(set(playlistSongs) - set(foundSongs.keys()))
-    if (len(notFound) > 0):
-        writeFile(notFound, log_songsNotFound)
+        #Log found songs
+        print "Creating logs..."
+        writeFile(foundSongs.keys(), log_foundSongs)
+
+        #Log not found
+        notFound = list(set(playlistSongs) - set(foundSongs.keys()))
+        if notFound != []:
+            writeFile(notFound, log_songsNotFound)
+
+    else:
+        print "No matches found."
 
 
-    
 
-
-
+#Crawl directories to find music files
 def findMusic(rootdir, playlistSongs):
     found = {}
     
@@ -51,9 +60,9 @@ def findMusic(rootdir, playlistSongs):
             try:
                 if song.isSupportedFileType(filePath):
                     songObj = song.songObjFromFile(filePath)
-                    # Add to global list of songs (if advanced search option set?)
+                    # Add to global list of songs?
+
                     if testMatch(songObj, playlistSongs):
-                        #print songObj.artist + " - " + songObj.title
                         found[songObj] = filePath
 
             except(mutagen.mp3.error) as exc:
@@ -61,14 +70,9 @@ def findMusic(rootdir, playlistSongs):
                 print "Error! ", exc
                 continue
 
-
-    #print found.values()
     return found
 
 
-
-
-                    
 
 def testMatch(songObj, playList):
     for song in playList:
@@ -78,7 +82,7 @@ def testMatch(songObj, playList):
 
 
 
-
+#Import playlist as song objects
 def importPlaylist(file):
     songList = [] 
 
@@ -99,9 +103,11 @@ def readFile(file):
         for line in f:
             tagsDict = {}
             tags = [x.rstrip() for x in line.split('\t')]
-
+            
+            #Get header row
             if keys == []:
                 keys = tags
+            #Create ditionary with header row as keys
             else:
                 for key, value in zip(keys, tags):
                     tagsDict[key] = value
@@ -110,6 +116,8 @@ def readFile(file):
 
     return songs
 
+
+#Write log files
 def writeFile(data, file):
     with codecs.open(file, 'wb', encoding='utf-8') as f:
         output = ("artist", "title", "album", "bitrate", "length")
@@ -122,14 +130,8 @@ def writeFile(data, file):
 
 
 def outputFormatter(output):
-    line = ""
-    for item in output:
-        if item != output[-1]:
-            line = line + item + "\t"
-        else:
-            line = line + item + "\n"
-    return line
-
+    output = "\t".join(output) + "\n"
+    return output
 
 
 
@@ -141,18 +143,27 @@ def copyFiles(files, copyDestination):
       os.makedirs(copyDestination)
     except OSError as exception:
       if exception.errno != errno.EEXIST:
+          print "Error creating directory!"
           raise
 
-    print "Copying... " 
     
-    for file in files:
+    for i, file in enumerate(files):
+        try:
+            #print os.path.basename(file) 
+            shutil.copy2(file, copyDestination) 
+            outputStatus(i, len(files))
+        except IOError, ex:
+            print "IO Error", ex
 
-        print os.path.basename(file) 
-
-        shutil.copy2(file, copyDestination) 
 
   
-
+#Status bar
+def outputStatus(status, total):
+    if status < total:
+        sys.stdout.write("%d%%\r" % (int(float(status)/total*100.0)) )
+        sys.stdout.flush() 
+    else:
+        print "100%"
 
 
 if __name__ == "__main__":
